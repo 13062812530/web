@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" ng-app="LoginApp" >
+<head>
+	<meta charset="UTF-8">
+	<title>登录</title>
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="./css/font.css">
+	<link rel="stylesheet" href="./css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="./lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/xadmin.js"></script>
+    <script type="text/javascript" src="./lib/layui/layui.js"></script>
+    <script type="text/javascript" src="./js/angular.js"></script>
+    <script type="text/javascript" src="./js/bootstrap.js"></script>
+    <script type="text/javascript" src="./js/angularFormCheck.js" ></script>
+
+</head>
+<body class="login-bg" ng-controller="LoginController">
+    
+    <div class="login layui-anim layui-anim-up">
+        <div class="message">欢迎使用 IDEA 管理系统</div>
+        <div id="darkbannerwrap"></div>
+        
+        <form method="post" class="layui-form" >
+            <input name="userName" ng-model="userName" placeholder="用户名" type="text" class="layui-input" oninput = "value=value.replace(/[^\d]/g,'')" maxlength="11">
+            <hr class="hr15">
+            <input name="password" ng-model="password" placeholder="密   码" type="password" class="layui-input">
+            <hr class="hr15">
+            <input ng-click="doLogin()" value="登录" lay-submit lay-filter="login" style="width:100%;" type="submit">
+            <hr class="hr20" >
+        </form>
+    </div>
+</body>
+<script>
+        var app=angular.module("LoginApp",[]);
+        //优化--抽取出来
+        app.value("public",{
+            "Localapi":"http://127.0.0.1:8080/",
+		    "Version":"1.0.0"
+        })
+        app.controller("LoginController",LoginController);
+        function LoginController($scope,$http,public){
+            $scope.doLogin=function(){
+                var userName=$scope.userName;
+                var password=$scope.password;
+                if(userName=="" || userName==null){
+                    layer.msg("用户账号不能为空");
+                    return;
+                }
+                var userNamepattern=/^1[3|4|5|6|7|8]\d{9}$/;
+                if(!userNamepattern.test(userName)){
+                    layer.msg("手机号格式错误");
+                    return;     
+                }
+
+                if(password=="" || password==null){
+                    layer.msg("请填写正确的密码");
+                    return;
+                }
+                var passwordPattern=/^(\w){6,20}$/; 
+                if(!passwordPattern.test(password)){
+                    layer.msg("密码需是6-20个字母、数字、下划线");
+                    return;
+                }
+               $http({
+				method:'POST',
+				data:{userName:userName,password:password},
+				url:public.Localapi+'systemUser/doLogin'
+			    }).then(function successCallback(response){
+                    if(response.data.success){
+                       window.location="index.html";
+                    }else{
+                        layer.msg(response.data.errorMsg);
+                    }
+			    },function errorCallback(response){
+                    layer.msg("网络连接异常,请稍后再试...");
+		        });
+
+
+            }
+       }
+</script>
+</html>
